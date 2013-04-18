@@ -16,7 +16,7 @@ _HADOOP_JAR="${PRIVATE_HADOOP_JAR:-hadoop-core*.jar}"
 _HADOOP_LOG_DIR="/var/log/hadoop"
 _HADOOP_JOB_HISTORY_LOG="${_HADOOP_LOG_DIR}/history/done"
 _CHUKWA_LOG_DIR="${_HADOOP_LOG_DIR}/chukwa"
-_CHUKWA_HOME=$_INSTALL_DIR/$CHUKWA_HITUNE_DIST
+_CHUKWA_HOME=$_INSTALL_DIR
 _COLLECTORS_LIST="localhost"
 
 _HADOOP_CLUSTER_AGENTS_LIST="localhost"
@@ -51,7 +51,6 @@ PRIVATE_TAB="\t"
 PRIVATE_CONF_TEMPLATE="$DIR/.conf"
 PRIVATE_TMP_CONF_FILE="$DIR/${_CLUSTER_ROLE}-cluster.conf"
 PRIVATE_PREFIX="_CHUKWA_CLUSTER"
-CHUKWA_HITUNE_DIST="chukwa-hitune-dist"
 
 REQUIRED_SYSSTAT_VERSION=9
 CONF_FILE=
@@ -301,11 +300,10 @@ makeconf(){
 
 loadtemplate(){
     
-    cp -ra $DIR/$CHUKWA_HITUNE_DIST/conf/chukwa-env.sh.template $DIR/$CHUKWA_HITUNE_DIST/conf/chukwa-env.sh
-    cp -ra $DIR/$CHUKWA_HITUNE_DIST/conf/hadoop-metrics.properties.template $DIR/$CHUKWA_HITUNE_DIST/conf/hadoop-metrics.properties
-    cp -ra $DIR/$CHUKWA_HITUNE_DIST/conf/initial_adaptors.template $DIR/$CHUKWA_HITUNE_DIST/conf/initial_adaptors
-    cp -ra $DIR/$CHUKWA_HITUNE_DIST/conf/hitune-hadoop-env.sh.template $DIR/$CHUKWA_HITUNE_DIST/conf/hitune-hadoop-env.sh
-    cp -ra $DIR/$CHUKWA_HITUNE_DIST/conf/chukwa-collector-conf.xml.template $DIR/$CHUKWA_HITUNE_DIST/conf/chukwa-collector-conf.xml
+    cp -ra $DIR/etc/chukwa/chukwa-env.sh.template $DIR/etc/chukwa/chukwa-env.sh
+    cp -ra $DIR/etc/chukwa/initial_adaptors.template $DIR/etc/chukwa/initial_adaptors
+    cp -ra $DIR/etc/chukwa/hitune-hadoop-env.sh.template $DIR/etc/chukwa/hitune-hadoop-env.sh
+    cp -ra $DIR/etc/chukwa/chukwa-collector-conf.xml.template $DIR/etc/chukwa/chukwa-collector-conf.xml
 }
 
 build(){
@@ -317,33 +315,32 @@ build(){
     
     
     
-    setitem "_JAVA_HOME" `eval "echo \\\$${PRIVATE_PREFIX}_JAVA_HOME"` $DIR/$CHUKWA_HITUNE_DIST/conf/chukwa-env.sh
-    setitem "_JAVA_PLATFORM" `eval "echo \\\$${PRIVATE_PREFIX}_JAVA_PLATFORM"` $DIR/$CHUKWA_HITUNE_DIST/conf/chukwa-env.sh
-    setitem "_HADOOP_HOME" `eval "echo \\\$${PRIVATE_PREFIX}_HADOOP_HOME"` $DIR/$CHUKWA_HITUNE_DIST/conf/chukwa-env.sh
-    setitem "_HADOOP_CONF_DIR" `eval "echo \\\$${PRIVATE_PREFIX}_HADOOP_CONF_DIR"` $DIR/$CHUKWA_HITUNE_DIST/conf/chukwa-env.sh
-    setitem "_HADOOP_JAR" `eval "echo \\\$${PRIVATE_PREFIX}_HADOOP_JAR"` $DIR/$CHUKWA_HITUNE_DIST/conf/chukwa-env.sh
-    setitem "_CHUKWA_LOG_DIR" `eval "echo \\\$${PRIVATE_PREFIX}_CHUKWA_LOG_DIR"` $DIR/$CHUKWA_HITUNE_DIST/conf/chukwa-env.sh
+    setitem "_JAVA_HOME" `eval "echo \\\$${PRIVATE_PREFIX}_JAVA_HOME"` $DIR/etc/chukwa/chukwa-env.sh
+    setitem "_JAVA_PLATFORM" `eval "echo \\\$${PRIVATE_PREFIX}_JAVA_PLATFORM"` $DIR/etc/chukwa/chukwa-env.sh
+    setitem "_HADOOP_HOME" `eval "echo \\\$${PRIVATE_PREFIX}_HADOOP_HOME"` $DIR/etc/chukwa/chukwa-env.sh
+    setitem "_HADOOP_CONF_DIR" `eval "echo \\\$${PRIVATE_PREFIX}_HADOOP_CONF_DIR"` $DIR/etc/chukwa/chukwa-env.sh
+    setitem "_HADOOP_JAR" `eval "echo \\\$${PRIVATE_PREFIX}_HADOOP_JAR"` $DIR/etc/chukwa/chukwa-env.sh
+    setitem "_CHUKWA_LOG_DIR" `eval "echo \\\$${PRIVATE_PREFIX}_CHUKWA_LOG_DIR"` $DIR/etc/chukwa/chukwa-env.sh
     
     
-    expandnodelist $_HADOOP_CLUSTER_COLLECTORS_LIST > $DIR/$CHUKWA_HITUNE_DIST/conf/collectors
-    expandnodelist $_HADOOP_CLUSTER_AGENTS_LIST > $DIR/$CHUKWA_HITUNE_DIST/conf/agents
+    expandnodelist $_HADOOP_CLUSTER_COLLECTORS_LIST > $DIR/etc/chukwa/collectors
+    expandnodelist $_HADOOP_CLUSTER_AGENTS_LIST > $DIR/etc/chukwa/agents
     
     #if [ "$_CLUSTER_ROLE" = "chukwa" ]; then
-        setitem "_CHUKWA_LOG_DIR" $_CHUKWA_CLUSTER_CHUKWA_LOG_DIR $DIR/$CHUKWA_HITUNE_DIST/conf/hadoop-metrics.properties
-        setitem "_CHUKWA_CLUSTER_WRITE_HDFS_FILESYSTEM" $_CHUKWA_CLUSTER_WRITE_HDFS_FILESYSTEM $DIR/$CHUKWA_HITUNE_DIST/conf/chukwa-collector-conf.xml
+        setitem "_CHUKWA_CLUSTER_WRITE_HDFS_FILESYSTEM" $_CHUKWA_CLUSTER_WRITE_HDFS_FILESYSTEM $DIR/etc/chukwa/chukwa-collector-conf.xml
     #else
         version=`$_HADOOP_CLUSTER_IOSTAT -V 2>&1 |grep version|sed "s|[^0-9]*\([0-9]*\)\..*|\1|g"`
         if [ $version != $REQUIRED_SYSSTAT_VERSION ]; then
             echo "[Error]Please check your sysstat version"
             exit 1
         fi
-        setitem "_HADOOP_CLUSTER_IOSTAT" $_HADOOP_CLUSTER_IOSTAT $DIR/$CHUKWA_HITUNE_DIST/conf/initial_adaptors
-        setitem "_HADOOP_CLUSTER_SAR" $_HADOOP_CLUSTER_SAR $DIR/$CHUKWA_HITUNE_DIST/conf/initial_adaptors
-        setitem "_HADOOP_CLUSTER_MPSTAT" $_HADOOP_CLUSTER_MPSTAT $DIR/$CHUKWA_HITUNE_DIST/conf/initial_adaptors
-        setitem "_HADOOP_CLUSTER_HADOOP_JOB_HISTORY_LOG"  $_HADOOP_CLUSTER_HADOOP_JOB_HISTORY_LOG $DIR/$CHUKWA_HITUNE_DIST/conf/initial_adaptors
-        setitem "_CHUKWA_HOME"  $_INSTALL_DIR/$CHUKWA_HITUNE_DIST $DIR/$CHUKWA_HITUNE_DIST/conf/initial_adaptors
-        
-        setitem "_CHUKWA_HOME"  $_INSTALL_DIR/$CHUKWA_HITUNE_DIST $DIR/$CHUKWA_HITUNE_DIST/conf/hitune-hadoop-env.sh
+        setitem "_HADOOP_CLUSTER_IOSTAT" $_HADOOP_CLUSTER_IOSTAT $DIR/etc/chukwa/initial_adaptors
+        setitem "_HADOOP_CLUSTER_SAR" $_HADOOP_CLUSTER_SAR $DIR/etc/chukwa/initial_adaptors
+        setitem "_HADOOP_CLUSTER_MPSTAT" $_HADOOP_CLUSTER_MPSTAT $DIR/etc/chukwa/initial_adaptors
+        setitem "_HADOOP_CLUSTER_HADOOP_JOB_HISTORY_LOG"  $_HADOOP_CLUSTER_HADOOP_JOB_HISTORY_LOG $DIR/etc/chukwa/initial_adaptors
+        setitem "_CHUKWA_HOME"  $_INSTALL_DIR $DIR/etc/chukwa/initial_adaptors      
+        setitem "_CHUKWA_HOME"  $_INSTALL_DIR $DIR/etc/chukwa/hitune-hadoop-env.sh
+		setitem "_CHUKWA_HOME"  $_INSTALL_DIR $DIR/libexec/chukwa-config.sh
     
     #fi
     

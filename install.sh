@@ -59,47 +59,43 @@ CLUSTER_ROLE=${CLUSTER_ROLE:-"$_CLUSTER_ROLE"}
 # 2. copy neccessary libraries to hadoop
 # 3. if it is a "hadoop_cluster" , copy neccessary files to hadoop, recommend the end-user to restart the hadoop_cluster
 SRC=`cd $DIR/; pwd`
-echo "$INSTALL $SRC/$CHUKWA_HITUNE_DIST $_INSTALL_DIR/$CHUKWA_HITUNE_DIST"
-$INSTALL $SRC/$CHUKWA_HITUNE_DIST $_INSTALL_DIR/$CHUKWA_HITUNE_DIST 1> /dev/null
+echo "$INSTALL $SRC $_INSTALL_DIR"
+$INSTALL $SRC $_INSTALL_DIR 1> /dev/null
 check $?
 
-if [ $CLUSTER_ROLE = "chukwa" ]; then
-    echo "$INSTALL $SRC/$CHUKWA_HITUNE_DIST/lib/json*.jar $_CHUKWA_CLUSTER_HADOOP_HOME/lib"
-    $INSTALL $SRC/$CHUKWA_HITUNE_DIST/lib/json*.jar $_CHUKWA_CLUSTER_HADOOP_HOME/lib 1> /dev/null
-    check $?
+echo "$INSTALL $SRC/share/chukwa/lib/json*.jar $_CHUKWA_CLUSTER_HADOOP_HOME/lib"
+$INSTALL $SRC/share/chukwa/lib/json*.jar $_CHUKWA_CLUSTER_HADOOP_HOME/lib 1> /dev/null
+check $?
+
+test -e $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh.backup && \
+echo "mv -i $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh.backup $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh" && \
+mv $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh.backup $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh
+
+echo "$INSTALL $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh.backup" 
+$INSTALL $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh.backup
+check $?
+
+echo "cat $SRC/etc/chukwa/hitune-hadoop-env.sh >> $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh "
+cat $SRC/etc/chukwa/hitune-hadoop-env.sh >> $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh 
+check $?
+
+
+echo "$INSTALL $SRC/share/chukwa/chukwa*.jar $_CHUKWA_CLUSTER_HADOOP_HOME/lib"
+$INSTALL $SRC/share/chukwa/chukwa*.jar $_CHUKWA_CLUSTER_HADOOP_HOME/lib 1> /dev/null
+check $?
+
+echo "$INSTALL $SRC/hitune/HiTune*.jar $_CHUKWA_CLUSTER_HADOOP_HOME/lib"
+$INSTALL $SRC/hitune/HiTune*.jar $_CHUKWA_CLUSTER_HADOOP_HOME/lib 1> /dev/null
+check $?
+
+echo "$INSTALL $SRC/etc/chukwa/hadoop-log4j.properties $_CHUKWA_CLUSTER_HADOOP_HOME/log4j.properties"
+$INSTALL $SRC/etc/chukwa/hadoop-log4j.properties $_CHUKWA_CLUSTER_HADOOP_HOME/log4j.properties 1> /dev/null
+check $?
+
+echo "$INSTALL $SRC/etc/chukwa/hadoop-metrics2.properties $_CHUKWA_CLUSTER_HADOOP_HOME"
+$INSTALL $SRC/etc/chukwa/hadoop-metrics2.properties $_CHUKWA_CLUSTER_HADOOP_HOME 1> /dev/null
+check $?
     
-	test -e $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh.backup && \
-	echo "mv -i $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh.backup $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh" && \
-	mv $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh.backup $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh
-	
-    echo "$INSTALL $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh.backup" 
-	$INSTALL $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh.backup
-	check $?
-	
-	echo "cat $SRC/$CHUKWA_HITUNE_DIST/conf/hitune-hadoop-env.sh >> $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh "
-    cat $SRC/$CHUKWA_HITUNE_DIST/conf/hitune-hadoop-env.sh >> $_CHUKWA_CLUSTER_HADOOP_CONF_DIR/hadoop-env.sh 
-    check $?
-    
-    
-else 
-    echo "$INSTALL $SRC/$CHUKWA_HITUNE_DIST/lib/json*.jar $_HADOOP_CLUSTER_HADOOP_HOME/lib"
-    $INSTALL $SRC/$CHUKWA_HITUNE_DIST/lib/json*.jar $_HADOOP_CLUSTER_HADOOP_HOME/lib 1> /dev/null
-    check $?
-    
-    echo "$INSTALL $SRC/$CHUKWA_HITUNE_DIST/chukwa-hadoop-*-client.jar $_HADOOP_CLUSTER_HADOOP_HOME/lib"
-    $INSTALL $SRC/$CHUKWA_HITUNE_DIST/chukwa-hadoop-*-client.jar $_HADOOP_CLUSTER_HADOOP_HOME/lib 1> /dev/null
-    check $?
-    
-    echo "$INSTALL $SRC/$CHUKWA_HITUNE_DIST/conf/hadoop-log4j.properties $_HADOOP_CLUSTER_HADOOP_CONF_DIR/log4j.properties"
-    $INSTALL $SRC/$CHUKWA_HITUNE_DIST/conf/hadoop-log4j.properties $_HADOOP_CLUSTER_HADOOP_CONF_DIR/log4j.properties 1> /dev/null
-    check $?
-    
-    echo "$INSTALL $SRC/$CHUKWA_HITUNE_DIST/conf/hadoop-metrics.properties $_HADOOP_CLUSTER_HADOOP_CONF_DIRconf"
-    $INSTALL $SRC/$CHUKWA_HITUNE_DIST/conf/hadoop-metrics.properties $_HADOOP_CLUSTER_HADOOP_CONF_DIR 1> /dev/null
-    check $?
-    
-    
-fi
 
 
 
